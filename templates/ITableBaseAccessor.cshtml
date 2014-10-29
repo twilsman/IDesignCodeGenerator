@@ -1,0 +1,35 @@
+﻿@using IDG;
+@{
+    DalGeneratorConfigSection config = DalGeneratorConfigSection.current;
+}
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.ServiceModel;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace @config.BaseNamespace
+{
+    [ServiceContract]
+    public interface ITableBaseAccessor<TEntity> where TEntity : class, new()
+    {
+        [OperationContract]
+        TEntity Create(TEntity entity, UserContext userContext);
+
+        [OperationContract]
+        TEntity Update(TEntity entity, UserContext userContext);
+
+        [OperationContract]
+        TEntity[] FindAll(UserContext userContext);
+
+        [OperationContract]
+        TEntity[] FindMany(TEntity searchCriteria, UserContext userContext);
+
+        [OperationContract]
+        TEntity FindFirst(TEntity searchCriteria, UserContext userContext);
+
+        [OperationContract]
+        TEntity Delete(TEntity entity, UserContext userContext);
+    }
+}

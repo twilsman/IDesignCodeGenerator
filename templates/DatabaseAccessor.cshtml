@@ -1,0 +1,40 @@
+﻿@using IDG;
+@model List<InformationSchemaColumn>
+@{
+    DalGeneratorConfigSection config = DalGeneratorConfigSection.current;
+    string dataContractName = Model.First().TABLE_NAME.TrimEnd(new char[] { 's' });
+}
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using LinqKit;
+
+namespace @(config.BaseNamespace).ResourceAccess
+{
+    public class @(dataContractName)Accessor : @(config.BaseAccessorClassName)<@(config.DbContextClassName), @(dataContractName)>, I@(dataContractName)Accessor
+    {
+        public override System.Linq.Expressions.Expression<Func<@(dataContractName), bool>> SearchCriteriaExpression(@(dataContractName) searchCriteria, System.Linq.Expressions.Expression<Func<@(dataContractName), bool>> predicate)
+        {
+    @foreach(InformationSchemaColumn column in Model)
+    {<text>
+        @if(TypeMapper.SqlTypes[column.DATA_TYPE] == "string")
+        {
+            @:if ( !string.IsNullOrEmpty(searchCriteria.@(column.COLUMN_NAME)) )
+        }
+        else if(TypeMapper.SqlTypes[column.DATA_TYPE] == "int")
+        {
+            @:if ( searchCriteria.@(column.COLUMN_NAME) > 0)
+        }
+        else
+        {
+            @:if ( searchCriteria.@(column.COLUMN_NAME) != null)
+        }
+            {
+                predicate = predicate.And( p => p.@(column.COLUMN_NAME) == searchCriteria.@(column.COLUMN_NAME) );
+            }</text>
+    }
+            return predicate;
+        }
+    }
+}

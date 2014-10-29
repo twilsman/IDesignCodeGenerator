@@ -1,0 +1,20 @@
+﻿@using IDG;
+using System;
+using System.Data.Entity;
+using System.Data.Entity.Core.EntityClient;
+
+namespace @(DalGeneratorConfigSection.current.BaseNamespace).ResourceAccess
+{
+    public class DbBase<T> : DbContext, IDisposable where T : DbBase<T>
+    {
+        public DbBase(UserContext userContext)
+        {
+            EntityConnectionStringBuilder connStringBuilder = new EntityConnectionStringBuilder();
+            connStringBuilder.Provider = userContext.ConnectionProvider;
+            connStringBuilder.ProviderConnectionString = userContext.ConnectionString;
+
+            Database.Connection.ConnectionString = connStringBuilder.ProviderConnectionString;
+            Database.SetInitializer<T> (null);
+        }
+    }
+}

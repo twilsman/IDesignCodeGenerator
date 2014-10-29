@@ -1,0 +1,81 @@
+﻿@using IDG;
+@using System.Linq;
+@using System.Text;
+@functions{
+    private DalGeneratorConfigSection _config = DalGeneratorConfigSection.current;
+}
+@model List<TableColumnContext>
+using System;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity;
+using System.Linq;
+
+namespace @(_config.BaseNamespace).ResourceAccess
+{
+    public class @_config.DbContextClassName : DbBase< @_config.DbContextClassName >
+    {
+        #region ModelInit
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+    @foreach( TableColumnContext table in Model)
+    {
+        string hasKeyLine = string.Empty;
+
+        if (table.PrimaryKeys.Count > 0)
+        {
+            string keyDeclaration;
+
+            if (table.PrimaryKeys.Count == 1)
+            {
+                keyDeclaration = string.Format("k.{0}", table.PrimaryKeys[0].COLUMN_NAME);
+            }
+            else
+            {
+                StringBuilder builder = new StringBuilder();
+                builder.Append("new {");
+
+                table.PrimaryKeys.ForEach(key =>
+                {
+                    builder.Append(string.Format("k.{0}, ", key.COLUMN_NAME));
+                });
+
+                builder.Append("}");
+                keyDeclaration = builder.ToString();
+            }
+
+            @:modelBuilder.Entity< @table.TableNameSingular >().HasKey( k => @keyDeclaration );
+
+            foreach( TablePrimaryKey key in table.PrimaryKeys)
+            {
+                string dbOption = table.IdentityColumns.Contains(key.COLUMN_NAME) ? "Identity" : "None";
+                
+            @:modelBuilder.Entity< @table.TableNameSingular >().Property( p => p.@key.COLUMN_NAME ).HasDatabaseGeneratedOption(DatabaseGeneratedOption.@dbOption );
+            }
+        }
+
+        foreach (string column in table.AllIds)
+        {
+            string dbOption = table.IdentityColumns.Contains(column) ? "Identity" : "None";
+
+            @:modelBuilder.Entity< @table.TableNameSingular >().Property( p => p.@column ).HasDatabaseGeneratedOption(DatabaseGeneratedOption.@dbOption );
+        }
+            @:modelBuilder.Entity< @table.TableNameSingular >().ToTable("@string.Format("{0}.{1}", table.SchemaName, table.TableNamePlural)");
+            @:
+    }   
+        }
+        #endregion
+
+        #region Constructors
+        public @_config.DbContextClassName () : base(UserContext.DefaultUserContext("@_config.TargetDbConnectionStringName")) { }
+
+        public @_config.DbContextClassName (UserContext userContext) : base(userContext) { }
+        #endregion
+
+        #region Table Entities
+    @foreach(TableColumnContext table in Model)
+    {
+        @:public DbSet< @table.TableNameSingular > @table.TableNamePlural { get; set; }
+    }
+        #endregion
+    }
+}

@@ -1,0 +1,64 @@
+﻿@using IDG;
+@{ DalGeneratorConfigSection config = DalGeneratorConfigSection.current; }
+@model string
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using @(config.BaseNamespace).ResourceAccess;
+
+namespace @(config.BaseNamespace).Tests.DatabaseAccessorTests
+{
+    [TestClass]
+    public class @(Model)AccessorTests : DatabaseAccessorTestBase<@(Model), @(Model)Accessor>
+    {
+        [TestInitialize]
+        public override void TestInitialize()
+        {
+            base.TestInitialize();
+            base.CreateTestEntity();
+        }
+
+        [TestCleanup]
+        public override void TestCleanup()
+        {
+            base.TestCleanup();
+        }
+
+        [TestMethod]
+        public void RawDocumentAccessor_TestMe()
+        {
+            string testString = string.Format("Always get tested.  For safety, {0}", _accessor.GetType().Name);
+            Assert.AreEqual(testString, _accessor.TestMe("Always get tested.  For safety"));
+        }
+
+        [TestMethod]
+        public void RawDocumentAccessor_FindMany()
+        {
+        }
+
+        [TestMethod]
+        public void RawDocumentAccessor_FindAll()
+        {
+        }
+
+        [TestMethod]
+        public void RawDocumentAccessor_CreateAndFindFirst()
+        {
+        }
+
+        [TestMethod]
+        public void RawDocumentAccessor_Update()
+        {
+        }
+
+        [TestMethod]
+        public void RawDocumentAccessor_Delete()
+        {
+            Assert.IsTrue(base.Delete());
+        }
+    }
+}
+

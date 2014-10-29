@@ -1,0 +1,20 @@
+﻿@using IDG;
+@using System.Linq;
+@model IEnumerable<InformationSchemaColumn>
+using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Text;
+
+namespace @DalGeneratorConfigSection.current.BaseNamespace
+{
+    [DataContract]
+    public class @Model.First().TABLE_NAME.TrimEnd(new char[]{'s'})
+    {
+    @foreach(InformationSchemaColumn column in Model)
+    {
+        @:[DataMember]
+        @:public @TypeMapper.SqlTypes[@column.DATA_TYPE] @column.COLUMN_NAME { get; set; } 
+    }
+    }
+}

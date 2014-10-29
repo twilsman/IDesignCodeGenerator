@@ -1,0 +1,83 @@
+﻿@using IDG;
+@{ DalGeneratorConfigSection config = DalGeneratorConfigSection.current; }
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Transactions;
+using @(config.BaseNamespace).ResourceAccess;
+
+namespace @(config.BaseNamespace).Tests.DatabaseAccessorTests
+{
+    public abstract class DatabaseAccessorTestBase<TEntity, TAccessor>
+        where TEntity : class, new()
+        where TAccessor : TableBaseAccessor<@(config.DbContextClassName), TEntity>, new()
+    {
+        private TransactionScope _testTransactionScope;
+        protected TEntity _entity;
+        protected TAccessor _accessor;
+
+        #region Properties
+
+        private UserContext _defaultUserContext;
+        public UserContext DefaultUserContext
+        {
+            get
+            {
+                if (_defaultUserContext == null)
+                _defaultUserContext = UserContext.DefaultUserContext("@config.TargetDbConnectionStringName");
+
+                return _defaultUserContext;
+            }
+            set
+            {
+                // You can override the connection string
+                // for testing if you need to
+                _defaultUserContext = value;
+            }
+        }
+
+        #endregion
+
+
+        public virtual void TestInitialize()
+        {
+            _testTransactionScope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = TransactionIsolationLevel });
+            _entity = new TEntity();
+            _accessor = new TAccessor();
+        }
+
+        protected void CreateTestEntity()
+        {
+            _accessor.Create(_entity, DefaultUserContext);
+        }
+
+        protected TEntity[] FindAll()
+        {
+            _accessor.Create(new TEntity(), DefaultUserContext);
+            return _accessor.FindAll(DefaultUserContext);
+        }
+
+        protected bool Delete()
+        {
+            _accessor.Delete(_entity, DefaultUserContext);
+
+            return _accessor.FindAll(DefaultUserContext).Length == 0;
+        }
+
+        public virtual void TestCleanup()
+        {
+            _testTransactionScope.Dispose();
+        }
+
+        public virtual IsolationLevel TransactionIsolationLevel
+        {
+            get
+            {
+            return IsolationLevel.ReadCommitted;
+            }
+        }
+    }
+}
