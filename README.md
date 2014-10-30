@@ -46,3 +46,16 @@ Also, the translation of table names to class names is rock-stupid, so some manu
 
 All code is generated using Razor templates in .cshtml files.  These can be found and modified in the `4.Shared\Templates\CodeGeneration` project directory.
 
+All template files names are set by default, but they can be overidden with the following configuration properties:
+
+* DatabaseAccessorTemplateFile
+* DatabaseAccessorTestBaseTemplateFile
+* DatabaseAccessorUnitTestTemplateFile
+* DataContractTemplateFile
+* DbBaseTemplateFile
+* DbContextTemplateFile
+* IDatabaseAccessorTemplateFile
+* ITableBaseAccessorTemplateFile
+* TableBaseAccessorTemplateFile
+
+The location of the template files can be changed by setting the `TemplatesPath` config property.  The default templates directory is populated by a pre-build event on the 1.Clients\DALGenerator project.
