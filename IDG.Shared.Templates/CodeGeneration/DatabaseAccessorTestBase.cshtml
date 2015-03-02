@@ -11,9 +11,10 @@ using @(config.BaseNamespace).ResourceAccess;
 
 namespace @(config.BaseNamespace).Tests.DatabaseAccessorTests
 {
-    public abstract class DatabaseAccessorTestBase<TEntity, TAccessor>
+    public abstract class DatabaseAccessorTestBase<TEntity, TAccessor, TDbBase>
         where TEntity : class, new()
-        where TAccessor : TableBaseAccessor<@(config.DbContextClassName), TEntity>, new()
+        where TDbBase : DbBase<TDbBase>, new()
+        where TAccessor : TableBaseAccessor<DbBase, TEntity>, new()
     {
         private TransactionScope _testTransactionScope;
         protected TEntity _entity;
